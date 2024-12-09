@@ -65,7 +65,24 @@ router.post('/inscription', (req, res) => {
 // Permet de supprimer son compte. Entraine une suppression des données du user (ses infos personnelles sont supprimées. Ses commentaires sont gardés mais ses infos passent en utilisateur inconnu). Entraine une déconnexion.
 
 // Screen Dog signup ******************
-// Route Post : /users/dog
+router.post('/dog', async(req, res) => {
+  console.log('yes')
+  const user = await User.findOne({ token: req.body.userToken });
+  const dog = {
+    name: req.body.name,
+    size: req.body.size,
+    photo: req.body.photo,
+    race: req.body.race,
+  }
+  if (!user) {
+    res.json({ result: false, error: "Utilisateur non trouvé" });
+    return;
+  }else {
+    user.dogs.push(dog);
+    await user.save()
+    res.json({ message: 'Chien ajouté avec succès', dogs: user.dogs });
+  }
+})
 // Enregistrement dans la base de données des infos du sous-document chien : nom, taille, race, photo.
 
 // Screen Dog info **************************
