@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+const Place = require('../models/places');
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -21,6 +23,33 @@ router.get('/', function(req, res, next) {
 // POP UP LIEU --- AJOUTER *************
 // Route Post : /places/addPlace 
 // Un lieu est rajouté dans la base de données s’il n’existe pas encore.
+router.post('/addPlace', (req, res) => {
+  Place.findOne({ name: { $regex: new RegExp(req.body.name, 'i') } }).then(dbData => {
+		if (dbData === null) {
+      fetch(`https://api${req.body.name}&appid=${API_KEY}`)
+				.then(response => response.json())
+				.then(apiData => {
+					// Creates new document with place data
+					const newPlace = new Place({
+						name: req.body.name,
+						type: req.body.type,
+						adress: req.body.adress,
+						feedback: 1,
+						sizeAccepted: req.body.sizeAccepted,
+            comments: [],
+					});
+
+					// Finally save in database
+					newPlace.save().then(newDoc => {
+						res.json({ result: true, place: newDoc });
+					});
+				});
+		} else {
+			// Place already exists in database
+			res.json({ result: false, error: 'Place already saved' });
+		}
+	});
+})
 
 // POP UP LIEU *************
 // Route Get : /places/ :id 
@@ -34,5 +63,7 @@ router.get('/', function(req, res, next) {
 
 
 module.exports = router;
+
+
 
 
