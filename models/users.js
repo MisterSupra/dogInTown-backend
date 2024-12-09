@@ -14,7 +14,7 @@ const userSchema = mongoose.Schema({
     avatar: String,
     token: String,
     postCode: String,
-    dogs: dogSchema,
+    dogs: [dogSchema],
 })
 
 const User = mongoose.model("users", userSchema)
