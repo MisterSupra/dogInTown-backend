@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 
 // Connexion **************
 router.post('/connection', (req, res) => {
-  if (!checkBody(req.body, ['username', 'password'])) {
+  if (!checkBody(req.body, ['email', 'password'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
@@ -42,7 +42,7 @@ router.post('/inscription', (req, res) => {
         password: hash,
         token: uid2(32),
         avatar: "",
-        postCode: "",
+        postCode: req.body.postCode,
         dogs: [{}],
       });
 
