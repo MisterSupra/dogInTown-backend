@@ -31,11 +31,13 @@ router.post('/addPlace', (req, res) => {
 				.then(apiData => {
 					// Creates new document with place data
 					const newPlace = new Place({
-						name: req.body.name,
+						name: apiData,
 						type: req.body.type,
 						adress: req.body.adress,
 						feedback: 1,
 						sizeAccepted: req.body.sizeAccepted,
+            lattitude: apiData,
+            longitude: apiData,
             comments: [],
 					});
 

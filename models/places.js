@@ -6,6 +6,8 @@ const placeSchema = mongoose.Schema({
     adress: String,
     feedback: Number,
     sizeAccepted: String,
+    lattitude: Number,
+    longitude: Number,
     comments: {type: mongoose.Schema.Types.ObjectId, ref: 'comments'},
 })
 
