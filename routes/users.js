@@ -47,7 +47,7 @@ router.post('/inscription', (req, res) => {
       });
 
       newUser.save().then(newDoc => {
-        res.json({ result: true, token: newDoc.token });
+        res.json({ result: true, token: newDoc.token, username: newDoc.username });
       });
     } else {
       // User already exists in database
