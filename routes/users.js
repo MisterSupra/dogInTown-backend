@@ -66,7 +66,6 @@ router.post('/inscription', (req, res) => {
 
 // Screen Dog signup ******************
 router.post('/dog', async(req, res) => {
-  console.log('yes')
   const user = await User.findOne({ token: req.body.userToken });
   const dog = {
     name: req.body.name,
