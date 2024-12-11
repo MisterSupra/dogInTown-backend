@@ -4,10 +4,6 @@ var router = express.Router();
 const Place = require('../models/places');
 const Comment = require('../models/comments');
 
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-	res.send('respond with a resource');
-});
 
 // FAVORIS *************
 // Route Get : /places/displayFavoris
@@ -19,7 +15,10 @@ router.get('/', function (req, res, next) {
 // Screen Map **********
 // Route Get : /places
 // Affichage des lieux (sous forme de tableau) présents en base de données en fonction du nombre de référencements (affiché si supérieur à 10). 
-
+router.get("/", async (req, res) => {
+    const allPlaces = await Place.find();
+    res.json({result: true, allPlaces: allPlaces});
+})
 
 // POP UP LIEU --- AJOUTER *************
 // Un lieu est rajouté dans la base de données s’il n’existe pas encore.
