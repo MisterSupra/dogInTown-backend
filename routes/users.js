@@ -64,13 +64,12 @@ router.post('/inscription', (req, res) => {
 
 // Route POST pour envoyer l'information à Claudinary
 router.post('/upload', async (req, res) => {
-  const photoPath = `./tmp/photo.jpg`;
+  const photoPath = `/tmp/photo.jpg`;
   const resultMove = await req.files.photoFromFront.mv(photoPath);
   const resultCloudinary = await cloudinary.uploader.upload('./tmp/photo.jpg');
   fs.unlinkSync('./tmp/photo.jpg');
 
   if (!resultMove) {
-      console.log(resultCloudinary.secure_url)
       res.json({ result: true, url: resultCloudinary.secure_url });
   } else {
       res.json({ result: false, error: resultMove });
