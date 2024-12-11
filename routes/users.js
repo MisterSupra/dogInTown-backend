@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 //Claudinary
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
+const CLOUDINARY_URL = process.env.CLOUDINARY_URL;
 
 
 // Connexion **************
@@ -67,12 +68,13 @@ router.post('/upload', async (req, res) => {
   const resultMove = await req.files.photoFromFront.mv(photoPath);
 
   if (!resultMove) {
+    // téléchargement vers Cloudinary
     const resultCloudinary = await cloudinary.uploader.upload(photoPath);
     res.json({ result: true, url: resultCloudinary.secure_url });
   } else {
     res.json({ result: false, error: resultMove });
   }
-
+  // supression du fichier temporaire
   fs.unlinkSync(photoPath);
 });
 
