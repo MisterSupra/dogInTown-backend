@@ -66,17 +66,31 @@ router.post('/inscription', (req, res) => {
 router.post('/upload', async (req, res) => {
   const photoPath = `./tmp/photo.jpg`;
   const resultMove = await req.files.photoFromFront.mv(photoPath);
+  const resultCloudinary = await cloudinary.uploader.upload('./tmp/photo.jpg');
+  fs.unlinkSync('./tmp/photo.jpg');
 
   if (!resultMove) {
-    // téléchargement vers Cloudinary
-    const resultCloudinary = await cloudinary.uploader.upload(photoPath);
-    res.json({ result: true, url: resultCloudinary.secure_url });
+      console.log(resultCloudinary.secure_url)
+      res.json({ result: true, url: resultCloudinary.secure_url });
   } else {
-    res.json({ result: false, error: resultMove });
+      res.json({ result: false, error: resultMove });
   }
-  // supression du fichier temporaire
-  fs.unlinkSync(photoPath);
 });
+
+// router.post('/upload', async (req, res) => {
+//   const photoPath = `./tmp/photo.jpg`;
+//   const resultMove = await req.files.photoFromFront.mv(photoPath);
+
+//   if (!resultMove) {
+//     // téléchargement vers Cloudinary
+//     const resultCloudinary = await cloudinary.uploader.upload(photoPath);
+//     res.json({ result: true, url: resultCloudinary.secure_url });
+//   } else {
+//     res.json({ result: false, error: resultMove });
+//   }
+//   // supression du fichier temporaire
+//   fs.unlinkSync(photoPath);
+// });
 
 
 // Screen infos perso ***********
