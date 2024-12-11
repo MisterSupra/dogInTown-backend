@@ -7,6 +7,11 @@ const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
 
+//Claudinary
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+const CLOUDINARY_URL = process.env.CLOUDINARY_URL;
+
 
 // Connexion *************
 router.post('/connection', (req, res) => {
@@ -25,6 +30,7 @@ router.post('/connection', (req, res) => {
 })
 
 // Inscription ***************
+// Enregistrement dans la base de données des infos users : pseudo, email, mot de passe, token, photo de profil et code postal.
 router.post('/inscription', (req, res) => {
   if (!checkBody(req.body, ['username', 'password'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
@@ -55,7 +61,23 @@ router.post('/inscription', (req, res) => {
     }
   });
 });
-// Enregistrement dans la base de données des infos users : pseudo, email, mot de passe, token, photo de profil et code postal.
+
+// Route POST pour envoyer l'information à Claudinary
+router.post('/upload', async (req, res) => {
+  const photoPath = `./tmp/photo.jpg`;
+  const resultMove = await req.files.photoFromFront.mv(photoPath);
+
+  if (!resultMove) {
+    // téléchargement vers Cloudinary
+    const resultCloudinary = await cloudinary.uploader.upload(photoPath);
+    res.json({ result: true, url: resultCloudinary.secure_url });
+  } else {
+    res.json({ result: false, error: resultMove });
+  }
+  // supression du fichier temporaire
+  fs.unlinkSync(photoPath);
+});
+
 
 // Screen infos perso ***********
 // Route Put : /users/ :id 
