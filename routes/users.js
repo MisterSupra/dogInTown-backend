@@ -13,7 +13,7 @@ const fs = require('fs');
 const CLOUDINARY_URL = process.env.CLOUDINARY_URL;
 
 
-// Connexion *************
+// Connexion ************
 router.post('/connection', (req, res) => {
   if (!checkBody(req.body, ['email', 'password'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
