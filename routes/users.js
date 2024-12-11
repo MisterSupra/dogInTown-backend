@@ -98,9 +98,9 @@ router.post('/dog', async(req, res) => {
   if (!user) {
     res.json({ result: false, error: "Utilisateur non trouvé" });
     return;
-  }else {
+  } else {
     user.dogs.push(dog);
-    await user.save()
+    await user.save();
     res.json({ message: 'Chien ajouté avec succès', dogs: user.dogs });
   }
 })
