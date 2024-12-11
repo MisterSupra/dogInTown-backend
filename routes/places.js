@@ -2,10 +2,11 @@ var express = require('express');
 var router = express.Router();
 
 const Place = require('../models/places');
+const Comment = require('../models/comments');
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/', function (req, res, next) {
+	res.send('respond with a resource');
 });
 
 // FAVORIS *************
@@ -21,36 +22,39 @@ router.get('/', function(req, res, next) {
 
 
 // POP UP LIEU --- AJOUTER *************
-// Route Post : /places/addPlace 
 // Un lieu est rajouté dans la base de données s’il n’existe pas encore.
-router.post('/addPlace', (req, res) => {
-  Place.findOne({ name: { $regex: new RegExp(req.body.name, 'i') } }).then(dbData => {
-		if (dbData === null) {
-      fetch(`https://api${req.body.name}&appid=${API_KEY}`)
-				.then(response => response.json())
-				.then(apiData => {
-					// Creates new document with place data
-					const newPlace = new Place({
-						name: apiData,
-						type: req.body.type,
-						adress: req.body.adress,
-						feedback: 1,
-						sizeAccepted: req.body.sizeAccepted,
-            lattitude: apiData,
-            longitude: apiData,
-            comments: [],
-					});
-
-					// Finally save in database
-					newPlace.save().then(newDoc => {
-						res.json({ result: true, place: newDoc });
-					});
-				});
-		} else {
-			// Place already exists in database
-			res.json({ result: false, error: 'Place already saved' });
-		}
-	});
+router.post('/addPlace', async (req, res) => {
+	const place = await Place.findOne({ name: req.body.name })
+	const comment = await Comment.findOne({ token: req.body.token })
+	if (place) { //si le lieu est déjà enregistré dans la bdd
+		res.json({ result: false, error: "Lieu déjà enregistré" });
+		return;
+	} else if (comment) { // si l'utilisateur laisse un premier avis
+		const newPlace = new Place({
+			name: req.body.name,
+			type: req.body.type,
+			adress: req.body.adress,
+			feedback: 1,
+			sizeAccepted: req.body.size,
+			latitude: req.body.latitude,
+			longitude: req.body.longitude,
+			comments: [comment._id]
+		})
+		const result = await newPlace.save()
+		res.json({ message: 'Lieu ajouté avec succès', place: result });
+	} else { // si jamais l'utilisateur ne laisse pas de premier avis
+		const newPlace = new Place({
+			name: req.body.name,
+			type: req.body.type,
+			adress: req.body.adress,
+			feedback: 1,
+			sizeAccepted: req.body.size,
+			latitude: req.body.latitude,
+			longitude: req.body.longitude,
+		})
+		const result = await newPlace.save()
+		res.json({ message: 'Lieu ajouté avec succès', place: result });
+	}
 })
 
 // POP UP LIEU *************
