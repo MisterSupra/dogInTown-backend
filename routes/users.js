@@ -103,11 +103,23 @@ router.post('/upload', async (req, res) => {
 
 // Screen infos perso ***********
 
+
 // Route Put : /users/ :id 
 // Modification des infos personnelles du user via son ID.
 router.put('/:id', (req, res) => {
-  User[req.params.id] = req.body.replacementUser;
-  res.json({ userprofil: user });
+  const { username, email } = req.body; // on recupère les éléments de la requête
+    User.findByIdAndUpdate(req.params.id, {username, email }, { new: true }) //via l'id qu'on reccupère, on change les valeurs suivantes/ new true = Cela permet de garantir que le document retourné contient les nouvelles valeurs après l'update.
+    .then(updatedUser => {
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+      }
+      // Réponse avec l'utilisateur mis à jour
+      return res.status(200).json(updatedUser);
+    })
+    .catch(err => {
+      // En cas d'erreur
+      return res.status(500).json({ message: 'Erreur serveur', error: err.message });
+    });
 });
 
 // Route Delete : /users/delete/ :id 
