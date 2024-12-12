@@ -7,14 +7,14 @@ const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
 
-const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
+const path = require('path');
+const os = require('os');  // Utilisation de os.tmpdir() pour récupérer le répertoire temporaire
 
-const tempDir = path.join(__dirname, '../tmp');
-if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir);
-}
+// Utiliser le répertoire temporaire /tmp qui est accessible en écriture sur Vercel
+const tempDir = os.tmpdir();  // Utilisation du répertoire temporaire disponible
+
 
 
 // Connexion ************
@@ -75,12 +75,18 @@ router.post('/upload', async (req, res) => {
       return res.json({ result: false, error: "No picture" });
     };
 
-    const resultCloudinary = await cloudinary.uploader.upload(pictureUpload.tempFilePath);
-      // to upload to a specific folder VVVV
-      // await cloudinary.uploader.upload(pictureUpload.tempFilePath), { folder: 'userPictures/${req.body.token} 
-      // });
+    // Utilisez le répertoire temporaire de Vercel pour les fichiers temporaires
+    const tempFilePath = path.join(os.tmpdir(), 'photo.jpg');
 
-      res.json({ result: true, url: resultCloudinary.secure_url });
+    // Déplacer le fichier temporaire dans ce répertoire
+    await pictureUpload.mv(tempFilePath);
+
+    const resultCloudinary = await cloudinary.uploader.upload(tempFilePath);
+    
+    // Supprimer le fichier temporaire après l'upload
+    fs.unlinkSync(tempFilePath);
+
+    res.json({ result: true, url: resultCloudinary.secure_url });
   } catch (err) {
       res.json({ result: false, error: err.message });
   }
