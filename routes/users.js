@@ -22,7 +22,7 @@ router.post('/connection', (req, res) => {
 
   User.findOne({ email: req.body.email }).then(data => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
-      res.json({ result: true, token: data.token });
+      res.json({ result: true, token: data.token, username: data.username, id: data._id });
     } else {
       res.json({ result: false, error: 'User not found or wrong password' });
     }
@@ -53,7 +53,7 @@ router.post('/inscription', (req, res) => {
       });
 
       newUser.save().then(newDoc => {
-        res.json({ result: true, token: newDoc.token, username: newDoc.username });
+        res.json({ result: true, token: newDoc.token, username: newDoc.username, id: newDoc._id });
       });
     } else {
       // User already exists in database
@@ -93,8 +93,13 @@ router.post('/upload', async (req, res) => {
 
 
 // Screen infos perso ***********
+
 // Route Put : /users/ :id 
 // Modification des infos personnelles du user via son ID.
+router.put('/:id', (req, res) => {
+  User[req.params.id] = req.body.replacementUser;
+  res.json({ userprofil: user });
+});
 
 // Route Delete : /users/delete/ :id 
 // Permet de supprimer son compte. Entraine une suppression des données du user (ses infos personnelles sont supprimées. Ses commentaires sont gardés mais ses infos passent en utilisateur inconnu). Entraine une déconnexion.
