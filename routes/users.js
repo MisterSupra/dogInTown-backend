@@ -1,20 +1,20 @@
-var express = require('express');
-var router = express.Router();
-
-require('../models/connection');
-const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
+
+//Claudinary
+
+// import { v2 as cloudinary } from 'cloudinary';
+// cloudinary.v2.config({
+// 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+// 	api_key: process.env.CLOUDINARY_API_KEY,
+// 	api_secret: process.env.CLOUDINARY_API_SECRET,
+//   });
 
 
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 
-const tempDir = path.join(__dirname, '../tmp');
-if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir);
-}
 
 
 // Connexion ************
@@ -68,23 +68,18 @@ router.post('/inscription', (req, res) => {
 
 // Route POST pour envoyer l'information à Claudinary
 router.post('/upload', async (req, res) => {
-  try {
-    const pictureUpload = Array.isArray(req.files.photoFromFront);
+  const photoPath = `/tmp/photo.jpg`;
+  const resultMove = await req.files.photoFromFront.mv(photoPath);
+  const resultCloudinary = await cloudinary.uploader.upload('./tmp/photo.jpg');
+  fs.unlinkSync('./tmp/photo.jpg');
 
-    if (!pictureUpload) {
-      return res.json({ result: false, error: "No picture" });
-    };
-
-    const resultCloudinary = await cloudinary.uploader.upload(pictureUpload);
-      // to uplaod to a specific folder VVVV
-      // await cloudinary.uploader.upload(pictureUpload.tempFilePath), { folder: 'userPictures/${req.body.token} 
-      // });
-
+  if (!resultMove) {
       res.json({ result: true, url: resultCloudinary.secure_url });
-  } catch (err) {
-      res.json({ result: false, error: err.message });
+  } else {
+      res.json({ result: false, error: resultMove });
   }
 });
+
 
 // router.post('/upload', async (req, res) => {
 //   const photoPath = `./tmp/photo.jpg`;
