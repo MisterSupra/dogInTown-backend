@@ -8,9 +8,18 @@ const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
 
 //Claudinary
+
+import { v2 as cloudinary } from 'cloudinary';
+cloudinary.v2.config({
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+	api_key: process.env.CLOUDINARY_API_KEY,
+	api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+
+
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
-const CLOUDINARY_URL = process.env.CLOUDINARY_URL;
+
 
 
 // Connexion ************
