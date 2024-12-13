@@ -51,7 +51,7 @@ router.post('/inscription', (req, res) => {
         email: req.body.email,
         password: hash,
         token: uid2(32),
-        avatar: "",
+        avatar: req.body.avatar,
         postCode: req.body.postCode,
         dogs: [{}],
       });
@@ -80,7 +80,7 @@ router.post('/upload', async (req, res) => {
 
     // Déplacer le fichier temporaire dans ce répertoire
     await pictureUpload.mv(tempFilePath);
-
+    // on upload sur cloudinary
     const resultCloudinary = await cloudinary.uploader.upload(tempFilePath);
     
     // Supprimer le fichier temporaire après l'upload
