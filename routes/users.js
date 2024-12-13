@@ -26,7 +26,7 @@ router.post('/connection', (req, res) => {
 
   User.findOne({ email: req.body.email }).then(data => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
-      res.json({ result: true, token: data.token, username: data.username, id: data._id });
+      res.json({ result: true, token: data.token, username: data.username });
     } else {
       res.json({ result: false, error: 'User not found or wrong password' });
     }
@@ -57,7 +57,7 @@ router.post('/inscription', (req, res) => {
       });
 
       newUser.save().then(newDoc => {
-        res.json({ result: true, token: newDoc.token, username: newDoc.username, id: newDoc._id });
+        res.json({ result: true, token: newDoc.token, username: newDoc.username });
       });
     } else {
       // User already exists in database
@@ -113,9 +113,9 @@ router.post('/upload', async (req, res) => {
 
 // Route Put : /users/ :id 
 // Modification des infos personnelles du user via son ID.
-router.put('/:id', (req, res) => {
+router.put('/:token', (req, res) => {
   const { username, email } = req.body; // on recupère les éléments de la requête
-    User.findByIdAndUpdate(req.params.id, {username, email }, { new: true }) //via l'id qu'on reccupère, on change les valeurs suivantes/ new true = Cela permet de garantir que le document retourné contient les nouvelles valeurs après l'update.
+    User.findByIdAndUpdate(req.params.id, {username, email, password }, { new: true }) //via l'id qu'on reccupère, on change les valeurs suivantes/ new true = Cela permet de garantir que le document retourné contient les nouvelles valeurs après l'update.
     .then(updatedUser => {
       if (!updatedUser) {
         return res.status(404).json({ message: 'Utilisateur non trouvé.' });
