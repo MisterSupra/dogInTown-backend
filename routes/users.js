@@ -92,30 +92,20 @@ router.post('/upload', async (req, res) => {
   }
 });
 
-// router.post('/upload', async (req, res) => {
-//   const photoPath = `./tmp/photo.jpg`;
-//   const resultMove = await req.files.photoFromFront.mv(photoPath);
-
-//   if (!resultMove) {
-//     // téléchargement vers Cloudinary
-//     const resultCloudinary = await cloudinary.uploader.upload(photoPath);
-//     res.json({ result: true, url: resultCloudinary.secure_url });
-//   } else {
-//     res.json({ result: false, error: resultMove });
-//   }
-//   // supression du fichier temporaire
-//   fs.unlinkSync(photoPath);
-// });
-
 
 // Screen infos perso ***********
-
-
-// Route Put : /users/ :id 
-// Modification des infos personnelles du user via son ID.
+// Route Get :/users/ :token
+router.get('/:token', (req, res) => {
+  // Regex to find places regardless of nickname case
+  User.find({ token: req.params.token }).then(data => {
+      res.json({ result: true, profilUser: data });
+  });
+});
+// Route Put : /users/ :token
+// Modification des infos personnelles du user via son token.
 router.put('/:token', (req, res) => {
   const { username, email } = req.body; // on recupère les éléments de la requête
-    User.findByIdAndUpdate(req.params.token, {username, email, password }, { new: true }) //via l'id qu'on reccupère, on change les valeurs suivantes/ new true = Cela permet de garantir que le document retourné contient les nouvelles valeurs après l'update.
+    User.findByIdAndUpdate(req.params.token, {username, email, password }, { new: true }) //via le token qu'on reccupère, on change les valeurs suivantes/ new true = Cela permet de garantir que le document retourné contient les nouvelles valeurs après l'update.
     .then(updatedUser => {
       if (!updatedUser) {
         return res.status(404).json({ message: 'Utilisateur non trouvé.' });
