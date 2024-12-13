@@ -56,9 +56,12 @@ router.post('/addPlace', async (req, res) => {
 	}
 })
 
-// POP UP LIEU *************
-// Route Get : /places/ :id 
-// Affiche le lieu sous forme de pop up grâce à son ID. Insertion d’un populate pour affichage des commentaires liés au lieu avec pseudo et photo de profil de l’utilisateur qui l’a écrit.
+//Obtenir tous les commentaires d'un lieu
+router.get('/comments/:placeName', async(req, res) => {
+	const allComments = await Place.findOne({name : req.params.placeName}).populate('comments');
+	res.json({message: 'Listes des commentaires trouvé avec succès', comments: allComments.comments})
+})
+
 
 // Route Put : /places/ addFeedback/ :id
 // Modifie le nombre de feedback et la taille du chien.

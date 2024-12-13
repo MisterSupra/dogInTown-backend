@@ -6,10 +6,21 @@ const User = require('../models/users');
 const uid2 = require('uid2');
 
 
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
-});
+//trouver les informations utilisateurs depuis un commentaire
+router.get('/user/:commentToken', async(req, res) => {
+  const user = await Comment.findOne({token : req.params.commentToken}).populate('user');
+  if(user === null || user.user === null){
+    res.json({erreur: 'utilisateur non trouvé'});
+    return
+  }
+  const userDataToShow = {
+    username : user.user.username,
+    avatar: user.user.avatar,
+    dogs: user.user.dogs
+  }
+  res.json({message: 'utilisateur trouvé', user: userDataToShow});
+})
+
 
 // Rajoute un commentaire dans la base de données (contenu, pseudo et photo de profil utilisateur)
 router.post('/', async (req, res) => {
