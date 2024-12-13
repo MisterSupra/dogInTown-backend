@@ -149,6 +149,20 @@ router.post('/dog', async(req, res) => {
 // Route Get : /users/dog
 // Affiche les informations du sous-document chien.
 
+router.get('/dog/:token', (req, res) => {
+  console.log(`received ${req.params.token}`)
+  User.findOne({ token: req.params.token })
+    .then(data => {
+      if (data) {
+      console.log(data)
+      res.json({ result: true, dogs: data.dogs });
+    } else {
+      res.json({ result: false, error: 'User not found' });
+    }
+  });
+  }
+);
+
 // Route Delete : /users/dog
 // Supprime les infos du chien
 
