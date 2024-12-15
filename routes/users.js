@@ -53,7 +53,7 @@ router.post('/inscription', (req, res) => {
         token: uid2(32),
         avatar: req.body.avatar,
         postCode: req.body.postCode,
-        dogs: [{}],
+        dogs: [],
       });
 
       newUser.save().then(newDoc => {
@@ -104,7 +104,7 @@ router.get('/:token', (req, res) => {
 // Route Put : /users/ :token
 // Modification des infos personnelles du user via son token.
 router.put('/:token', (req, res) => {
-  const { username, email } = req.body; // on recupère les éléments de la requête
+  const { username, email, password } = req.body; // on recupère les éléments de la requête
     User.findByIdAndUpdate(req.params.token, {username, email, password }, { new: true }) //via le token qu'on reccupère, on change les valeurs suivantes/ new true = Cela permet de garantir que le document retourné contient les nouvelles valeurs après l'update.
     .then(updatedUser => {
       if (!updatedUser) {
@@ -145,6 +145,43 @@ router.post('/dog', async(req, res) => {
 // Screen Dog info **************************
 // Route Put : /users/dog
 // Modification des informations du sous-document chien.
+
+router.put('/dog/:token', (req, res) => {
+  const token = req.params.token;
+
+  const dogName = req.body.dogName;
+  const race = req.body.race;
+  const size = req.body.size;
+  const newName = req.body.name;  
+
+  User.findOne({ token })
+    .then((user) => {
+      if (!user) {
+        console.log('User not found');
+      }
+
+      const dog = user.dogs.find((e) => e.name === dogName);
+      if (!dog) {
+        console.log('dog not found');
+      }
+      
+      if (newName) {
+        dog.name = newName;
+      }
+      if (race) {
+        dog.race = race;
+      }
+      if (size) {
+        dog.size = size;
+      }
+
+      return user.save();
+    }).then((updatedUser) => {
+      console.log(updatedUser)
+      res.json({ result: true, user: updatedUser })
+    });
+});
+
 
 // Route Get : /users/dog
 // Affiche les informations du sous-document chien.
