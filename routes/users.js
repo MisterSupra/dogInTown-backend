@@ -149,18 +149,21 @@ router.post('/dog', async(req, res) => {
 router.put('/dog/:token', (req, res) => {
   const token = req.params.token;
 
-  const dogName = req.body.dogName;
-  const race = req.body.race;
-  const size = req.body.size;
-  const newName = req.body.name;  
+  console.log(req.body)
+  const dogId = req.body.dogId;
+  const newRace = req.body.race ?? null;
+  const newSize = req.body.size ?? null;
+  const newName = req.body.name ?? null;  
 
   User.findOne({ token })
     .then((user) => {
       if (!user) {
         console.log('User not found');
       }
-
-      const dog = user.dogs.find((e) => e.name === dogName);
+      console.log('user.dogs:', user.dogs);
+      console.log('dogId:', dogId);
+      // user.dogs.map((dog) => console.log(dog._id.toString()));
+      const dog = user.dogs.find((e) => e._id.toString() === dogId);
       if (!dog) {
         console.log('dog not found');
       }
@@ -168,11 +171,11 @@ router.put('/dog/:token', (req, res) => {
       if (newName) {
         dog.name = newName;
       }
-      if (race) {
-        dog.race = race;
+      if (newRace) {
+        dog.race = newRace;
       }
-      if (size) {
-        dog.size = size;
+      if (newSize) {
+        dog.size = newSize;
       }
 
       return user.save();
