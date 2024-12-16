@@ -3,6 +3,7 @@ var router = express.Router();
 
 require('../models/connection');
 const User = require('../models/users');
+const Place = require('../models/places');
 const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
@@ -222,5 +223,85 @@ router.get('/dog/:token', (req, res) => {
 // Route Delete : /users/dog
 // Supprime les infos du chien
 
+// FAVORIS *************
+// Route Get : /users/favoris/:token
+// Affiche la liste des lieux en favoris -- Obtenir tous les favoris d'un user
+router.get('/favoris/:token', async(req, res) => {
+	const allPlaces = await User.findOne({token : req.params.token}).populate('places');
+	res.json({message: 'Listes des commentaires trouvé avec succès', places: allPlaces.places})
+})
+
+
+// Route Post : /users/addFavoris
+// on attribut au user via son token, un tableau de lieu des places en favoris (name, lattitude et longitude)
+
+router.post('/addFavoris/:token', (req, res) => {
+  // Trouver l'utilisateur par son token
+  User.findOne({ token: req.params.token })
+      .then(user => {
+          if (user) {
+              // Récupérer la place via son ID (passé dans le corps de la requête)
+              const placeId = req.body.placeId;
+
+              // Vérifier que l'ID de la place est valide
+              if (!placeId) {
+                  return res.status(400).json({ result: false, error: 'Place ID is required' });
+              }
+
+              // Trouver la place dans la base de données
+              Place.findById(placeId)
+                  .then(place => {
+                      if (place) {
+                        const newPlace = new Place({
+                                			place: place._id,
+                                      name: place.name,
+                                			latitude: place.latitude,
+                                      longitude: place.longitude,})
+                          // Ajouter l'ID de la place aux favoris de l'utilisateur
+                          user.places.push(newPlace);
+
+                          // Sauvegarder les changements de l'utilisateur
+                          user.save()
+                              .then(() => {
+                                  res.json({ result: true, message: 'Place added to favorites', place: place });
+                              })
+                              .catch(err => {
+                                  res.status(500).json({ result: false, error: 'Error saving user data' });
+                              });
+                      } else {
+                          // Si la place n'est pas trouvée
+                          res.status(404).json({ result: false, error: 'Place not found' });
+                      }
+                  })
+                  .catch(err => {
+                      // Gestion des erreurs lors de la recherche de la place
+                      res.status(500).json({ result: false, error: 'Error finding place' });
+                  });
+          }
+        })
+});
+
+// router.post('/addFavoris/:token', (req, res) => {
+// User.findOne({token: req.params.token})
+//  .populate('places')
+//  .then(data => 
+//   if (data){
+//     const newPlace = new Place({
+//       			place: data._id,
+//             name: data.body.name,
+//       			latitude: data.body.latitude,
+//             longitude: data.body.longitude,
+//    })
+//    newPlace.push().save().then(Data => {
+//     res.json({result:true, new:Data
+//     })}
+// } else{
+//    res.json({result:false, error:"not connected"})
+// })
+// })
+
+
+ // Route Delete : /places/deleteFavoris/ :id 
+// On supprime un lieu des favoris via son ID
 
 module.exports = router;

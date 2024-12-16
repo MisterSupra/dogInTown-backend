@@ -15,6 +15,7 @@ const userSchema = mongoose.Schema({
     token: String,
     postCode: String,
     dogs: [dogSchema],
+    places: [{type: mongoose.Schema.Types.ObjectId, ref: 'places'}],
 })
 
 const User = mongoose.model("users", userSchema)
