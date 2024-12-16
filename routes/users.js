@@ -221,6 +221,30 @@ router.get('/dog/:token', (req, res) => {
 
 // Route Delete : /users/dog
 // Supprime les infos du chien
+router.delete('/dog/:token', (req, res) => {
+  const token = req.params.token;
+  const dogId = req.body._id;
+  console.log(dogId)
+
+  User.findOneAndUpdate(
+    { token },
+    { $pull: { dogs: { _id: dogId } } }, // Remove the dog with the specified _id
+    { new: true } // Return the updated document
+  )
+    .then(updatedUser => {
+      if (!updatedUser) {
+        return res.status(404).json({ result: false, message: 'User not found' });
+      }
+
+      console.log('Dog deleted successfully');
+      res.status(200).json({ result: true, message: 'Dog deleted successfully', user: updatedUser });
+    })
+    .catch(err => {
+      console.error('Error deleting dog:', err);
+      res.status(500).json({ result: false, message: 'Internal server error', error: err });
+    });
+});
+
 
 
 module.exports = router;
