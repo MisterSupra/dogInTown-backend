@@ -53,7 +53,7 @@ router.post('/inscription', (req, res) => {
         token: uid2(32),
         avatar: req.body.avatar,
         postCode: req.body.postCode,
-        dogs: [{}],
+        dogs: [],
       });
 
       newUser.save().then(newDoc => {
