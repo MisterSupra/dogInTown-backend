@@ -53,7 +53,7 @@ router.post('/inscription', (req, res) => {
         token: uid2(32),
         avatar: req.body.avatar,
         postCode: req.body.postCode,
-        dogs: [],
+        dogs: [{}],
       });
 
       newUser.save().then(newDoc => {
@@ -103,19 +103,35 @@ router.get('/:token', (req, res) => {
 });
 // Route Put : /users/ :token
 // Modification des infos personnelles du user via son token.
-router.put('/:token', (req, res) => {
-  const { username, email, password } = req.body; // on recupère les éléments de la requête
-    User.findByIdAndUpdate(req.params.token, {username, email, password }, { new: true }) //via le token qu'on reccupère, on change les valeurs suivantes/ new true = Cela permet de garantir que le document retourné contient les nouvelles valeurs après l'update.
-    .then(updatedUser => {
-      if (!updatedUser) {
-        return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+router.put('/profil/:token', (req, res) => {
+  const token = req.params.token;
+  console.log(req.body)
+  const newUsername = req.body.username ?? null;
+  const newPassword = req.body.password ?? null;
+  const newEmail = req.body.email ?? null; 
+  User.findOne({ token })
+    .then((user) => {
+      if (!user) {
+        console.log('User not found');
       }
-      // Réponse avec l'utilisateur mis à jour
-      return res.status(200).json(updatedUser);
-    })
-    .catch(err => {
-      // En cas d'erreur
-      return res.status(500).json({ message: 'Erreur serveur', error: err.message });
+      console.log('user:', user);
+      if (!user) {
+        console.log('user not found');
+      }
+      
+      if (newUsername) {
+        user.username = newUsername;
+      }
+      if (newPassword) {
+        user.password = newPassword;
+      }
+      if (newEmail) {
+        user.email = newEmail;
+      }
+      return user.save();
+    }).then((updatedUser) => {
+      console.log(updatedUser)
+      res.json({ result: true, user: updatedUser })
     });
 });
 
