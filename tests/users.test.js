@@ -12,9 +12,9 @@ jest.mock('mongoose', () => ({
 }));
 
 describe('GET /users/:token', () => {
+  const token = 'testtoken';
+  const mockUser = { username: 'test', email: 'test@gmail.com', token };
   it('devrait retourner les informations utilisateur via le token', async () => {
-    const token = 'testtoken';
-    const mockUser = { username: 'test', email: 'test@gmail.com', token };
 
     User.findOne.mockResolvedValue(mockUser);
 
