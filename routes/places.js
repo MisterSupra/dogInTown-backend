@@ -3,6 +3,8 @@ var router = express.Router();
 
 const Place = require('../models/places');
 const Comment = require('../models/comments');
+const User = require('../models/users');
+
 
 
 // FAVORIS *************
@@ -16,8 +18,8 @@ const Comment = require('../models/comments');
 // Route Get : /places
 // Affichage des lieux (sous forme de tableau) présents en base de données en fonction du nombre de référencements (affiché si supérieur à 10). 
 router.get("/", async (req, res) => {
-    const allPlaces = await Place.find();
-    res.json({result: true, allPlaces: allPlaces});
+	const allPlaces = await Place.find();
+	res.json({ result: true, allPlaces: allPlaces });
 })
 
 // POP UP LIEU --- AJOUTER *************
@@ -57,9 +59,15 @@ router.post('/addPlace', async (req, res) => {
 })
 
 //Obtenir tous les commentaires d'un lieu
-router.get('/comments/:placeName', async(req, res) => {
-	const allComments = await Place.findOne({name : req.params.placeName}).populate('comments');
-	res.json({message: 'Listes des commentaires trouvé avec succès', comments: allComments.comments})
+router.get('/comments/:placeName', async (req, res) => {
+	const allComments = await Place.findOne({ name: req.params.placeName }).populate({
+		path: 'comments', 
+		populate: {
+			path: 'user',   
+			select: 'username avatar dogs'  
+		}
+	});
+	res.json({ message: 'Listes des commentaires trouvé avec succès', comments: allComments.comments })
 })
 
 
