@@ -3,6 +3,7 @@ var router = express.Router();
 
 const Comment = require('../models/comments');
 const User = require('../models/users');
+const Place = require('../models/places');
 const uid2 = require('uid2');
 
 
@@ -34,6 +35,35 @@ router.post('/', async (req, res) => {
   await newComment.save()
   res.json({ message: 'Commentaire ajouté avec succès', comment: newComment });
 })
+
+
+//Ajouter un commentaire sur un lieu déjà existant
+
+router.put('/add/:placeName', async(req, res) => {
+  const place = await Place.findOne({name : req.params.placeName})
+  const user = await User.findOne({ token : req.body.token })
+  const newComment = new Comment({
+    content : req.body.content,
+    date: new Date(),
+    user: user._id,
+    token: uid2(32),
+  })
+
+  if(req.body.size === 'moyen'){
+    place.sizeAccepted = 'moyen';
+  }else if(req.body.size === 'grand'){
+    place.sizeAccepted = 'grand';
+  }
+
+  await newComment.save()
+  place.comments.push(newComment._id);
+  place.feedback = place.feedback + 1;
+  await place.save()
+
+
+  res.json({message: 'Commentaire ajouté avec succès.', comment: newComment})
+})
+
 
 // Route Delete : /comments/ :id
 // Suppression d’un commentaire via son ID
