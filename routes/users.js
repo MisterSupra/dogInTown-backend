@@ -294,41 +294,41 @@ router.post("/addFavoris/:token", (req, res) => {
       Place.findById(placeId)
         .then((place) => {
           if (place) {
-            // Ajouter l'ID de la place aux favoris de l'utilisateur
-            user.places.push(place._id);
-            console.log("user---->", user);
 
-            // Sauvegarder les changements de l'utilisateur
-            user
-              .save()
-              .then(() => {
-                res.json({
-                  result: true,
-                  message: "Place added to favorites",
-                  place: place,
-                });
-              })
-              .catch((err) => {
-                res
-                  .status(500)
-                  .json({ result: false, error: "Error saving user data" });
+            // Si la place est déjà dans les favoris
+            if (user.places.includes(place._id)) {
+              return res.status(400).json({
+                result: false,
+                message: "This place is already in your favorites",
               });
-          } else {
-            // Si la place n'est pas trouvée
-            res.status(404).json({ result: false, error: "Place not found" });
-          }
+            } else {
+              // Ajouter l'ID de la place aux favoris de l'utilisateur
+              user.places.push(place._id);
+              console.log("user---->", user);
+
+              // Sauvegarder les changements de l'utilisateur
+              user.save()
+                .then(() => {
+                  res.json({
+                    result: true,
+                    message: "Place added to favorites",
+                    place: place,
+                  });
+                })
+                .catch((err) => {
+                  res
+                    .status(500)
+                    .json({ result: false, error: "Error saving user data" });
+                });
+            }
+          } 
         })
-        .catch((err) => {
-          // Gestion des erreurs lors de la recherche de la place
-          res.status(500).json({ result: false, error: "Error finding place" });
-        });
     }
   });
 });
 
 // Route Delete : /places/deleteFavoris/ :id
 // On supprime un lieu des favoris via son ID
-
 router.delete("/deleteFavoris/:token", (req, res) => {
   const { placeId } = req.body;  // On récupère l'ID du lieu à partir du corps de la requête
   // Trouver l'utilisateur par son token
