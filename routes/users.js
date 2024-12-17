@@ -329,4 +329,19 @@ router.post("/addFavoris/:token", (req, res) => {
 // Route Delete : /places/deleteFavoris/ :id
 // On supprime un lieu des favoris via son ID
 
+router.delete("/deleteFavoris/:token", (req, res) => {
+  const { placeId } = req.body;  // On récupère l'ID du lieu à partir du corps de la requête
+  // Trouver l'utilisateur par son token
+  User.findOne({ token: req.params.token })
+    .then((user) => {
+      // Supprimer le lieu des favoris de l'utilisateur
+      user.places = user.places.filter(id => id.toString() !== placeId.toString());
+
+      // Sauvegarder les changements dans l'utilisateur
+      user.save()
+        .then(() => { res.json({ result: true, message: "Lieu supprimé"});
+        })
+    })
+});
+
 module.exports = router;
