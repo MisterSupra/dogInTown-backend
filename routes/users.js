@@ -4,6 +4,7 @@ var router = express.Router();
 require("../models/connection");
 const User = require("../models/users");
 const Place = require("../models/places");
+const Comment = require("../models/comments");
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
@@ -95,7 +96,7 @@ router.post("/upload", async (req, res) => {
   }
 });
 
-// Screen infos perso ***********
+// SCREEN INFO PERSO ***********
 // Route Get :/users/ :token
 router.get("/:token", (req, res) => {
   // Regex to find places regardless of nickname case
@@ -103,6 +104,7 @@ router.get("/:token", (req, res) => {
     res.json({ result: true, profilUser: data });
   });
 });
+
 // Route Put : /users/ :token
 // Modification des infos personnelles du user via son token.
 router.put("/profil/:token", (req, res) => {
@@ -138,8 +140,17 @@ router.put("/profil/:token", (req, res) => {
     });
 });
 
-// Route Delete : /users/delete/ :id
-// Permet de supprimer son compte. Entraine une suppression des données du user (ses infos personnelles sont supprimées. Ses commentaires sont gardés mais ses infos passent en utilisateur inconnu). Entraine une déconnexion.
+//Supression utilisateur et de tous les commentaires qu'il lui sont lié
+router.delete('/:userToken', async(req, res) => {
+  const user = await User.findOne({ token : req.params.userToken})
+  if(!user){
+    res.json({result: false, error: 'Utilisateur non trouvé.'})
+    return
+  }
+  await Comment.deleteMany({user : user._id})
+  await User.deleteOne({ token : req.params.userToken})
+  res.json({result: true, message: 'Utilisateur supprimé avec succès.'})
+})
 
 // Screen Dog signup ******************
 router.post("/dog", async (req, res) => {
@@ -151,12 +162,12 @@ router.post("/dog", async (req, res) => {
     race: req.body.race,
   };
   if (!user) {
-    res.json({ result: false, error: "Utilisateur non trouvé" });
+    res.json({ result: false, error: "Utilisateur non trouvé." });
     return;
   } else {
     user.dogs.push(dog);
     await user.save();
-    res.json({ message: "Chien ajouté avec succès", dogs: user.dogs });
+    res.json({ message: "Chien ajouté avec succès.", dogs: user.dogs });
   }
 });
 // Enregistrement dans la base de données des infos du sous-document chien : nom, taille, race, photo.
