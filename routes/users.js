@@ -109,15 +109,12 @@ router.get("/:token", (req, res) => {
 // Modification des infos personnelles du user via son token.
 router.put("/profil/:token", (req, res) => {
   const token = req.params.token;
-  console.log(req.body);
+  const newAvatar = req.body.avatar ?? null;
   const newUsername = req.body.username ?? null;
   const newPassword = req.body.password ?? null;
   const newEmail = req.body.email ?? null;
   User.findOne({ token })
     .then((user) => {
-      if (!user) {
-        console.log("User not found");
-      }
       console.log("user:", user);
       if (!user) {
         console.log("user not found");
@@ -132,6 +129,10 @@ router.put("/profil/:token", (req, res) => {
       if (newEmail) {
         user.email = newEmail;
       }
+      if (newAvatar) {
+        user.avatar = newAvatar;
+      }
+
       return user.save();
     })
     .then((updatedUser) => {
