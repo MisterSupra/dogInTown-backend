@@ -4,7 +4,7 @@ const placeSchema = mongoose.Schema({
     name: String,
     type: String,
     adress: String,
-    feedback: Number,
+    feedback: Array,
     sizeAccepted: String,
     latitude: Number,
     longitude: Number,

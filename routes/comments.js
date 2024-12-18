@@ -57,10 +57,10 @@ router.put('/add/:placeName', async(req, res) => {
 
   await newComment.save()
   place.comments.push(newComment._id);
-  place.feedback = place.feedback + 1;
+  if(!place.feedback.includes(req.body.token)){ //Si le tableau de feedback n'a pas le token de l'utilsateur compris dans ses valeurs
+    place.feedback.push(req.body.token)
+  }
   await place.save()
-
-
   res.json({message: 'Commentaire ajouté avec succès.', comment: newComment})
 })
 
