@@ -185,6 +185,7 @@ router.put("/dog/:token", (req, res) => {
   const newRace = req.body.race ?? null;
   const newSize = req.body.size ?? null;
   const newName = req.body.name ?? null;
+  const newPhoto = req.body.photo ?? null;
 
   User.findOne({ token })
     .then((user) => {
@@ -207,6 +208,9 @@ router.put("/dog/:token", (req, res) => {
       }
       if (newSize) {
         dog.size = newSize;
+      }
+      if (newPhoto) {
+        dog.photo = newPhoto;
       }
 
       return user.save();
